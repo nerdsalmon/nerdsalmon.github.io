@@ -1,0 +1,442 @@
+<!doctype html><html lang="th"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="robots" content="noindex,nofollow">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23e8664a'/%3E%3Crect x='7' y='16' width='4' height='9' fill='%23fff'/%3E%3Crect x='14' y='10' width='4' height='15' fill='%23fff'/%3E%3Crect x='21' y='13' width='4' height='12' fill='%23fff'/%3E%3C/svg%3E">
+<style>*,*::before,*::after{box-sizing:border-box}html{color-scheme:light}body{margin:0;font-family:system-ui,sans-serif;font-size:14px}img{max-width:100%}[hidden]{display:none!important}</style></head><body><title>Nerd Salmon Daily</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: one-column operator sheet — filters, KPI strip, daily sales, hourly sales, ad test, ads by day, keywords, menu */
+:root{
+  --bg:#f7f5f3; --panel:#ffffff; --fg:#1f1b19; --muted:#6f6560; --line:#e7e0db;
+  --salmon:#e8664a; --salmon-soft:#f6c7b9; --sea:#2f6f73; --sea-soft:#b9d6d6;
+  --good:#2e7d4f; --warn:#b7791f; --bad:#c0392b; --chip:#f1ebe7;
+  --f-body:"IBM Plex Sans Thai",system-ui,sans-serif; --f-mono:"IBM Plex Mono",ui-monospace,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#161312; --panel:#201c1a; --fg:#f1ebe7; --muted:#a89d97; --line:#352f2c;
+  --salmon:#f27c61; --salmon-soft:#6e3a2e; --sea:#6fb3b6; --sea-soft:#2c4a4b;
+  --good:#5cc08a; --warn:#e0a84a; --bad:#ef6b5b; --chip:#2b2523; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#161312; --panel:#201c1a; --fg:#f1ebe7; --muted:#a89d97; --line:#352f2c;
+  --salmon:#f27c61; --salmon-soft:#6e3a2e; --sea:#6fb3b6; --sea-soft:#2c4a4b;
+  --good:#5cc08a; --warn:#e0a84a; --bad:#ef6b5b; --chip:#2b2523; color-scheme:dark}
+body{background:var(--bg);color:var(--fg);font-family:var(--f-body);font-size:14px;line-height:1.5}
+.wrap{max-width:1120px;margin:0 auto;padding-inline:16px;padding-block:20px 48px;display:grid;gap:18px}
+h1{font-size:24px;margin:0;font-weight:700;text-wrap:balance}
+h2{font-size:15px;margin:0;font-weight:600}
+.sub{color:var(--muted);font-size:13px}
+header{display:flex;flex-wrap:wrap;gap:12px;align-items:flex-end;justify-content:space-between}
+.filters{display:flex;flex-wrap:wrap;gap:10px;align-items:center;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:10px 12px}
+.filters label{font-size:12px;color:var(--muted)}
+.dates{display:flex;gap:6px;align-items:center}
+.filters input[type=date]{font:inherit;font-size:13px;color:var(--fg);background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:4px 8px}
+.filters .sep{width:1px;align-self:stretch;background:var(--line)}
+.chip{display:inline-flex;align-items:center;gap:6px;padding:3px 10px;border-radius:999px;background:var(--chip);font-size:12px;color:var(--muted);white-space:nowrap}
+.chip .dot{width:7px;height:7px;border-radius:50%;background:var(--muted)}
+.chip.ok .dot{background:var(--good)} .chip.stale .dot{background:var(--warn)} .chip.err .dot{background:var(--bad)}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:8px;overflow:hidden;background:var(--panel)}
+.seg button{font:inherit;font-size:13px;border:0;background:transparent;color:var(--muted);padding:5px 12px;cursor:pointer}
+.seg button[aria-pressed="true"]{background:var(--fg);color:var(--bg)}
+.seg button:focus-visible,.filters input:focus-visible{outline:2px solid var(--salmon);outline-offset:-2px}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:16px;display:grid;gap:12px;min-width:0}
+.panel-head{display:flex;flex-wrap:wrap;gap:8px;justify-content:space-between;align-items:center}
+.kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:1px;background:var(--line);border:1px solid var(--line);border-radius:10px;overflow:hidden}
+@media (max-width:760px){.kpis{grid-template-columns:repeat(2,minmax(0,1fr))}}
+
+.kpi{background:var(--panel);padding:12px 14px;display:grid;gap:2px;min-width:0;align-content:start}
+.kpi .lab{font-size:12px;color:var(--muted)}
+.kpi .val{font-family:var(--f-mono);font-size:21px;font-weight:500}
+.kpi .d{font-size:12px;font-family:var(--f-mono)}
+.up{color:var(--good)} .down{color:var(--bad)} .flat{color:var(--muted)}
+.chart{width:100%;overflow-x:auto}
+.chart svg{display:block;width:100%;height:auto}
+.legend{display:flex;flex-wrap:wrap;gap:14px;font-size:12px;color:var(--muted)}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:6px;vertical-align:-1px}
+.tbl{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:13px}
+th{font-weight:500;color:var(--muted);font-size:12px;text-align:right;padding:6px 8px;border-bottom:1px solid var(--line);white-space:nowrap}
+td{padding:7px 8px;border-bottom:1px solid var(--line);text-align:right;font-family:var(--f-mono);font-variant-numeric:tabular-nums;white-space:nowrap}
+th:first-child,td:first-child{text-align:left;font-family:var(--f-body)}
+td.name{white-space:normal;min-width:200px}
+td.name small{display:block;color:var(--muted);font-size:11px}
+tr:last-child td{border-bottom:0}
+tfoot td{font-weight:600;border-top:1px solid var(--line)}
+.bar{display:inline-block;height:6px;border-radius:3px;background:var(--salmon);vertical-align:middle;margin-left:6px}
+.test{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px}
+.phase{border:1px solid var(--line);border-radius:8px;padding:12px;display:grid;gap:8px}
+.phase dl{display:grid;grid-template-columns:auto auto;gap:4px 12px;margin:0;font-size:13px}
+.phase dt{color:var(--muted)} .phase dd{margin:0;text-align:right;font-family:var(--f-mono)}
+.verdict{font-size:13px;padding:10px 12px;border-radius:8px;background:var(--chip)}
+.note{font-size:12px;color:var(--muted)}
+.empty{padding:28px;text-align:center;color:var(--muted)}
+.insight{font-size:13px;color:var(--fg)}
+svg text{fill:var(--muted);font-family:var(--f-mono);font-size:11px}
+svg text.v{fill:var(--fg)}
+@media (max-width:600px){
+  .wrap{gap:12px;padding-block:12px 32px}
+  h1{font-size:20px}
+  .panel{padding:12px}
+  .kpi{padding:10px}
+  .kpi .val{font-size:18px}
+  .filters{gap:8px;padding:8px}
+  .filters .sep{display:none}
+  .filters .seg{width:100%}
+  .filters .seg button{flex:1;padding:6px 4px}
+  .dates{display:flex;gap:6px;align-items:center;width:100%}
+  .dates input{flex:1;min-width:0}
+  #ads-tbl th:nth-child(3),#ads-tbl td:nth-child(3),#ads-tbl th:nth-child(5),#ads-tbl td:nth-child(5),
+  #ads-tbl th:nth-child(8),#ads-tbl td:nth-child(8),#ads-tbl th:nth-child(9),#ads-tbl td:nth-child(9),
+  #ads-tbl th:nth-child(11),#ads-tbl td:nth-child(11),
+  #kw-tbl th:nth-child(4),#kw-tbl td:nth-child(4),#kw-tbl th:nth-child(7),#kw-tbl td:nth-child(7){display:none}
+  th,td{padding:6px 5px}
+  td.name{min-width:0}
+  .bar{display:none}
+  #menu-tbl th:nth-child(4),#menu-tbl td:nth-child(4){display:none}
+  .long{display:none}
+}
+</style>
+
+<div class="wrap">
+  <header>
+    <div>
+      <h1>Nerd Salmon Daily</h1>
+      <div class="sub">GrabFood · ยอดขาย โฆษณา และเมนู</div>
+    </div>
+    <span class="chip" id="st-chip"><span class="dot"></span><span id="st-text">กำลังโหลด…</span></span>
+  </header>
+
+  <div class="filters" role="group" aria-label="ตัวกรอง">
+    <div class="seg" role="group" aria-label="ร้าน">
+      <button data-store="ns" aria-pressed="true">Nerd Salmon</button>
+      <button data-store="pf" aria-pressed="false">ผิงไฟ</button>
+      <button data-store="all" aria-pressed="false">รวม 2 ร้าน</button>
+    </div>
+    <span class="sep"></span>
+    <div class="seg" role="group" aria-label="ช่วงเวลา">
+      <button data-r="7" aria-pressed="true">7 วัน</button>
+      <button data-r="14" aria-pressed="false">14 วัน</button>
+      <button data-r="30" aria-pressed="false">30 วัน</button>
+    </div>
+    <div class="dates"><label for="d-from">จาก</label><input type="date" id="d-from">
+    <label for="d-to">ถึง</label><input type="date" id="d-to"></div>
+  </div>
+
+  <section class="kpis" id="kpis" aria-label="สรุปตัวเลข"></section>
+
+  <section class="panel">
+    <div class="panel-head"><h2 id="daily-title">ยอดขายสุทธิรายวัน</h2>
+      <div class="seg" role="group" aria-label="ตัวชี้วัดรายวัน">
+        <button data-dm="sales" aria-pressed="true">ยอดขาย</button>
+        <button data-dm="orders" aria-pressed="false">ออเดอร์</button>
+        <button data-dm="cust" aria-pressed="false">ลูกค้าใหม่/เดิม</button>
+      </div>
+    </div>
+    <span class="sub" id="sales-sub"></span>
+    <div class="legend" id="sales-legend"></div>
+    <div class="chart" id="sales-chart"><div class="empty">ยังไม่มีข้อมูลยอดขาย</div></div>
+  </section>
+
+  <section class="panel">
+    <div class="panel-head"><h2 id="week-title">เฉลี่ยต่อวันตามวันในสัปดาห์</h2><span class="sub">ใช้ตัวเลือก ยอดขาย/ออเดอร์/ลูกค้า จากกราฟรายวัน</span></div>
+    <div class="legend" id="week-legend"></div>
+    <div class="chart" id="week-chart"><div class="empty">ยังไม่มีข้อมูล</div></div>
+    <div class="insight" id="week-insight"></div>
+  </section>
+
+  <section class="panel">
+    <div class="panel-head"><h2>ยอดขายรายชั่วโมง</h2>
+      <div class="seg" role="group" aria-label="ตัวชี้วัดรายชั่วโมง">
+        <button data-hm="sales" aria-pressed="true">ยอดขาย</button>
+        <button data-hm="orders" aria-pressed="false">ออเดอร์</button>
+      </div>
+    </div>
+    <div class="legend" id="hour-legend"></div>
+    <div class="chart" id="hour-chart"><div class="empty">ยังไม่มีข้อมูลรายชั่วโมง</div></div>
+    <div class="insight" id="hour-insight"></div>
+  </section>
+
+  <section class="panel" id="test-panel">
+    <div class="panel-head"><h2>ทดสอบ Keyword: Manual vs Auto</h2><span class="sub" id="test-sub"></span></div>
+    <div class="test" id="test"></div>
+    <div class="verdict" id="verdict"></div>
+  </section>
+
+  <section class="panel" id="ads-panel">
+    <div class="panel-head"><h2>โฆษณาค้นหา รายวัน</h2><span class="sub">จ่ายต่อออเดอร์ (CPO) · โฆษณาของ Nerd Salmon</span></div>
+    <div class="tbl" id="ads-tbl"><div class="empty">ยังไม่มีข้อมูลโฆษณาในช่วงนี้</div></div>
+  </section>
+
+  <section class="panel" id="kw-panel">
+    <div class="panel-head"><h2>Keyword</h2><span class="sub" id="kw-sub"></span></div>
+    <div class="tbl" id="kw-tbl"><div class="empty">ยังไม่มีข้อมูล keyword ในช่วงนี้</div></div>
+  </section>
+
+  <section class="panel">
+    <div class="panel-head"><h2>เมนูขายดี</h2><span class="sub" id="menu-sub"></span></div>
+    <div class="tbl" id="menu-tbl"><div class="empty">ยังไม่มีข้อมูลเมนู</div></div>
+    <div class="note">รวมเมนูที่ชื่อซ้ำกัน (ต่างกันแค่ภาษาอังกฤษหรือการสะกด) ไว้ในบรรทัดเดียว · เปลี่ยนตามร้านและช่วงวันที่ที่เลือก</div>
+  </section>
+
+  <p class="note">อัปเดตอัตโนมัติทุกเช้าจาก GrabMerchant: ยอดขายและออเดอร์รายชั่วโมงจากประวัติคำสั่งซื้อ, โฆษณาและ keyword จากรายงาน GrabAds. ร้านเริ่มขายจริง 23 ก.ย. 2026.</p>
+</div>
+
+<script>
+const STORES={ns:'Nerd Salmon',pf:'ผิงไฟ',all:'รวม 2 ร้าน'};
+const S={days:[],kw:[],menuDays:[],menus:{},test:null,status:null,store:'ns',from:null,to:null,preset:7,hm:'sales',dm:'sales'};
+const $=id=>document.getElementById(id);
+const fmt=(n,d=0)=>n==null||!isFinite(n)?'–':Number(n).toLocaleString('en-US',{minimumFractionDigits:d,maximumFractionDigits:d});
+const baht=n=>n==null||!isFinite(n)?'–':'฿'+fmt(n);
+const pct=(a,b,d=0)=>b?fmt(a/b*100,d)+'%':'–';
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const TH=['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
+const dShort=s=>{const[,m,d]=s.split('-');return (+d)+' '+TH[m-1]};
+const addDays=(s,n)=>{const t=new Date(s+'T00:00:00Z');t.setUTCDate(t.getUTCDate()+n);return t.toISOString().slice(0,10)};
+const diffDays=(a,b)=>Math.round((new Date(b+'T00:00:00Z')-new Date(a+'T00:00:00Z'))/864e5);
+const todayBkk=()=>new Date(Date.now()+7*3600e3).toISOString().slice(0,10);
+const sum=(a,f)=>a.reduce((s,x)=>s+(+f(x)||0),0);
+const byDate=()=>Object.fromEntries(S.days.map(d=>[d.date,d]));
+const lastWith=f=>{const d=S.days.filter(f);return d.length?d[d.length-1].date:null};
+const storeThrough=()=>lastWith(d=>d.stores&&d.stores.ns&&d.stores.ns.sales!=null);
+const dateList=(a,b)=>{const o=[];for(let d=a;d<=b;d=addDays(d,1))o.push(d);return o};
+
+// Store metrics for one day doc under the selected store
+function sm(d,store=S.store){
+  const st=d&&d.stores; if(!st) return null;
+  const keys=store==='all'?['ns','pf']:[store]; const parts=keys.map(k=>st[k]).filter(Boolean); if(!parts.length) return null;
+  const o={sales:0,orders:0,cancel:0,new_cust:0,ad_orders:0,ad_sales:0,hasAdSales:false,hours:{},hasHours:false};
+  parts.forEach(p=>{o.sales+=p.sales||0;o.orders+=p.orders||0;o.cancel+=p.cancel||0;o.new_cust+=p.new_cust||0;o.ad_orders+=p.ad_orders||0;
+    if(p.ad_sales!=null){o.ad_sales+=p.ad_sales;o.hasAdSales=true}
+    if(p.hours){o.hasHours=true;p.hours.forEach(([h,n,sa,a,as,nw])=>{const b=o.hours[h]||(o.hours[h]={orders:0,sales:0,ad:0,adSales:0,newc:0});b.orders+=n;b.sales+=sa;b.ad+=a;b.adSales+=as!=null?as:(n?sa*a/n:0);b.newc+=nw||0;})}});
+  return o;
+}
+
+// ---------- filters ----------
+function setPreset(n){const end=storeThrough()||todayBkk();S.preset=n;S.to=end;S.from=addDays(end,-(n-1));syncFilters()}
+function syncFilters(){$('d-from').value=S.from||'';$('d-to').value=S.to||'';
+  document.querySelectorAll('[data-r]').forEach(b=>b.setAttribute('aria-pressed',String(+b.dataset.r===S.preset)));
+  document.querySelectorAll('[data-store]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.store===S.store)));
+  document.querySelectorAll('[data-hm]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.hm===S.hm)));
+  document.querySelectorAll('[data-dm]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.dm===S.dm)));}
+document.querySelectorAll('[data-r]').forEach(b=>b.addEventListener('click',()=>{setPreset(+b.dataset.r);save();render()}));
+document.querySelectorAll('[data-store]').forEach(b=>b.addEventListener('click',()=>{S.store=b.dataset.store;syncFilters();save();render()}));
+document.querySelectorAll('[data-hm]').forEach(b=>b.addEventListener('click',()=>{S.hm=b.dataset.hm;syncFilters();renderHours()}));
+document.querySelectorAll('[data-dm]').forEach(b=>b.addEventListener('click',()=>{S.dm=b.dataset.dm;syncFilters();renderSales()}));
+['d-from','d-to'].forEach(id=>$(id).addEventListener('change',()=>{let f=$('d-from').value,t=$('d-to').value;if(!f||!t)return;if(f>t)[f,t]=[t,f];S.from=f;S.to=t;S.preset=null;syncFilters();save();render()}));
+function save(){try{localStorage.setItem('f',JSON.stringify({store:S.store,preset:S.preset,from:S.from,to:S.to}))}catch(e){}}
+let restored=null;try{restored=JSON.parse(localStorage.getItem('f')||'null')}catch(e){}
+if(restored&&STORES[restored.store])S.store=restored.store;
+
+let rz;window.addEventListener('resize',()=>{clearTimeout(rz);rz=setTimeout(render,150)});
+function render(){if(!S.from)return;renderStatus();renderKpis();renderSales();renderHours();renderTest();renderAds();renderKw();renderMenu()}
+
+function renderStatus(){
+  const st=S.status, chip=$('st-chip'); if(!st){$('st-text').textContent='ยังไม่มีการอัปเดต';return}
+  const t=new Date(st.last_run), hrs=(Date.now()-t)/3600e3;
+  chip.className='chip '+(st.ok===false?'err':hrs>30?'stale':'ok');
+  const when=t.toLocaleString('th-TH',{timeZone:'Asia/Bangkok',day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'});
+  $('st-text').textContent=(st.ok===false?'อัปเดตไม่สำเร็จ · ':'อัปเดต ')+when+(st.store_data_through?' · ข้อมูลถึง '+dShort(st.store_data_through):'')+(st.ok===false&&st.note?' · '+st.note:'');
+}
+
+function periodStats(from,to){
+  const m=byDate(), ds=dateList(from,to).map(d=>m[d]);
+  const st=ds.map(d=>sm(d)).filter(Boolean);
+  const active=st.filter(x=>x.sales>0).length;
+  const ads=ds.filter(d=>d&&d.ad_spend!=null);
+  return {sales:sum(st,x=>x.sales),orders:sum(st,x=>x.orders),newc:sum(st,x=>x.new_cust),adOrdersStore:sum(st,x=>x.ad_orders),active,
+    spend:sum(ads,x=>x.ad_spend),adSales:sum(ads,x=>x.ad_sales),adOrders:sum(ads,x=>x.ad_orders),clicks:sum(ads,x=>x.ad_clicks),imp:sum(ads,x=>x.ad_imp)};
+}
+function renderKpis(){
+  const n=diffDays(S.from,S.to)+1, c=periodStats(S.from,S.to), p=periodStats(addDays(S.from,-n),addDays(S.from,-1));
+  const okPrev=p.active>=Math.ceil(n/2);
+  const delta=(cv,pv)=>{if(!okPrev||!pv)return '<span class="d flat">ยังไม่มีช่วงก่อนหน้าให้เทียบ</span>';const r=(cv-pv)/pv*100;return `<span class="d ${r>0.5?'up':r<-0.5?'down':'flat'}">${r>0?'+':''}${fmt(r,0)}% vs ${n} วันก่อน</span>`};
+  const k=(lab,val,extra='')=>`<div class="kpi"><span class="lab">${lab}</span><span class="val">${val}</span>${extra}</div>`;
+  const aov=c.orders?c.sales/c.orders:null, paov=p.orders?p.sales/p.orders:null;
+  const adOn=S.store!=='pf';
+  $('kpis').innerHTML=
+    k('ยอดขายสุทธิ',baht(c.sales),delta(c.sales,p.sales))+
+    k('ออเดอร์',fmt(c.orders),delta(c.orders,p.orders))+
+    k('บิลเฉลี่ย',baht(aov),delta(aov,paov))+
+    k('ออเดอร์จากลูกค้าใหม่',pct(c.newc,c.orders),`<span class="d flat">ใหม่ ${fmt(c.newc)} · ลูกค้าเดิม ${fmt(c.orders-c.newc)} ออเดอร์</span>`)+
+    (adOn?
+    k('ค่าโฆษณา',baht(c.spend),`<span class="d flat">${fmt(c.adOrders)} ออเดอร์จากโฆษณา</span>`)+
+    k('ROAS',c.spend?fmt(c.adSales/c.spend,1)+'x':'–',`<span class="d flat">CPO ${c.adOrders?baht(c.spend/c.adOrders):'–'}</span>`)+
+    k('คลิก → ออเดอร์',pct(c.adOrders,c.clicks,1),`<span class="d flat">${fmt(c.clicks)} คลิก · CTR ${pct(c.clicks,c.imp,1)}</span>`)+
+    k('ออเดอร์จากโฆษณา',pct(c.adOrdersStore,c.orders),`<span class="d flat">ของออเดอร์ ${STORES[S.store]}</span>`)
+    :'');
+  $('sales-sub').textContent=`${STORES[S.store]} · ${dShort(S.from)} – ${dShort(S.to)} (${n} วัน)`;
+}
+
+function niceStep(x){const p=Math.pow(10,Math.floor(Math.log10(x||1))),n=x/p;return (n<=1?1:n<=2?2:n<=5?5:10)*p}
+function axis(max,ticks=4){const step=niceStep(max/ticks);return {step,top:Math.max(step,Math.ceil(max/step)*step)}}
+const kfmt=v=>v>=1000?fmt(v/1000,v%1000?1:0)+'k':fmt(v);
+
+// Shared stacked-bar drawer: cols=[{key,label,sub,segs:[[value,color,name]],tip}]
+function drawStack(el,cols,o){
+  // viewBox = real pixel width of the container, so the chart always fits the screen (no sideways scrolling)
+  const n=cols.length,cw=Math.max(300,Math.floor(el.clientWidth||el.parentElement.clientWidth||880));
+  const narrow=cw<600,L=narrow?34:48,R=8,T=22,B=o.sub?38:28,W=cw,H=o.h||(narrow?240:280),iw=W-L-R,ih=H-T-B;
+  const max=Math.max(1,...cols.map(c=>sum(c.segs,x=>x[0]))),{step,top}=axis(max),y=v=>T+ih-(v/top)*ih;
+  const f=v=>o.money?kfmt(v):(o.dec?fmt(v,1):fmt(v));
+  const bw=iw/n,w=Math.max(4,Math.min(o.maxW||46,bw*0.72));let g='';
+  const fs=narrow?9:10;
+  for(let v=0;v<=top+1e-9;v+=step)g+=`<line x1="${L}" x2="${W-R}" y1="${y(v)}" y2="${y(v)}" stroke="var(--line)"/><text x="${L-5}" y="${y(v)+4}" text-anchor="end" style="font-size:${fs}px">${o.money?kfmt(v):fmt(v,step<1?1:0)}</text>`;
+  const strong=['var(--salmon)','var(--sea)'];
+  const labelEvery=Math.max(1,Math.ceil((o.labelW||(narrow?22:26))/bw));
+  const showTot=bw>=16,tfs=bw<28?fs-1:fs+1;
+  cols.forEach((c,i)=>{const x=L+i*bw+(bw-w)/2,cx=x+w/2;let acc=0;const tot=sum(c.segs,s=>s[0]),nz=c.segs.filter(s=>s[0]>0).length;
+    c.segs.forEach(([v,col,name])=>{if(v<=0)return;const y0=y(acc),y1=y(acc+v),h=y0-y1;
+      g+=`<rect x="${x}" y="${y1}" width="${w}" height="${h}" fill="${col}"><title>${c.tip||c.label} · ${name} ${o.money?'฿'+fmt(v):f(v)}</title></rect>`;
+      if(nz>1&&h>=13&&w>=(narrow?22:20))g+=`<text x="${cx}" y="${y1+h/2+3.5}" text-anchor="middle" style="font-size:${fs}px;fill:${strong.includes(col)?'#fff':'var(--fg)'}">${f(v)}</text>`;
+      acc+=v});
+    if(tot>0&&showTot)g+=`<text class="v" x="${cx}" y="${y(tot)-5}" text-anchor="middle" style="font-size:${tfs}px;font-weight:500">${f(tot)}</text>`;
+    if(i%labelEvery===0||c.sub)g+=`<text x="${cx}" y="${H-(o.sub?21:9)}" text-anchor="middle" class="v" style="font-size:${fs+1}px">${c.label}</text>`;
+    if(o.sub&&c.sub)g+=`<text x="${cx}" y="${H-6}" text-anchor="middle" style="font-size:${fs}px">${c.sub}</text>`;});
+  el.innerHTML=`<svg viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="${o.aria||''}">${g}</svg>`;
+}
+const legend=(a,b)=>`<span><i style="background:${a[1]}"></i>${a[0]}</span><span><i style="background:${b[1]}"></i>${b[0]}</span>`;
+const SOFT='var(--salmon-soft)',HOT='var(--salmon)',SEA='var(--sea)';
+// split of one store-metrics object by the chosen metric: returns [[v,color,name],[v,color,name]]
+function split(s,doc,metric){
+  if(!s)return [[0,HOT,''],[0,SOFT,'']];
+  if(metric==='cust')return [[s.new_cust,HOT,'ลูกค้าใหม่'],[Math.max(0,s.orders-s.new_cust),SOFT,'ลูกค้าเดิม']];
+  const O=metric==='orders';
+  let ad=0;
+  if(S.store!=='pf'){ad=O?s.ad_orders:(s.hasAdSales?s.ad_sales:(doc&&doc.ad_sales!=null&&S.store==='ns'?Math.min(doc.ad_sales,s.sales):0))}
+  const tot=O?s.orders:s.sales;
+  return [[ad,HOT,'จากโฆษณา'],[Math.max(0,tot-ad),SOFT,'ทั่วไป']];
+}
+function legendFor(metric){
+  if(S.store==='all'&&metric!=='cust')return legend(['Nerd Salmon',HOT],['ผิงไฟ',SEA]);
+  if(metric==='cust')return legend(['ออเดอร์จากลูกค้าเดิม',SOFT],['ออเดอร์จากลูกค้าใหม่',HOT]);
+  const w=metric==='orders'?'ออเดอร์':'ยอดขาย';return legend([w+'ทั่วไป',SOFT],[w+'จากโฆษณา',HOT]);
+}
+const TITLES={sales:'ยอดขายสุทธิรายวัน',orders:'ออเดอร์รายวัน',cust:'ลูกค้าใหม่ vs ลูกค้าเดิม (ออเดอร์)'};
+
+function renderSales(){
+  const m=byDate(),M=S.dm;
+  $('daily-title').textContent=TITLES[M];
+  $('sales-legend').innerHTML=legendFor(M);
+  const cols=dateList(S.from,S.to).map((d,i)=>{const doc=m[d],[,mm,dd]=d.split('-');
+    let segs;
+    if(S.store==='all'&&M!=='cust'){const a=sm(doc,'ns'),b=sm(doc,'pf'),pk=x=>x?(M==='orders'?x.orders:x.sales):0;segs=[[pk(a),HOT,'Nerd Salmon'],[pk(b),SEA,'ผิงไฟ']]}
+    else segs=split(sm(doc),doc,M);
+    return {label:String(+dd),sub:(i===0||dd==='01')?TH[mm-1]:'',segs,tip:dShort(d)}});
+  drawStack($('sales-chart'),cols,{money:M==='sales',sub:true,aria:TITLES[M]});
+  renderWeek();
+}
+
+function renderWeek(){
+  const m=byDate(),M=S.dm,DN=['อาทิตย์','จันทร์','อังคาร','พุธ','พฤหัส','ศุกร์','เสาร์'],DS=['อา.','จ.','อ.','พ.','พฤ.','ศ.','ส.'],NARROW=$('week-chart').clientWidth<600,ORDER=[1,2,3,4,5,6,0];
+  const first=S.days.find(d=>{const s=sm(d);return s&&s.sales>0});
+  const agg={};ORDER.forEach(k=>agg[k]={n:0,a:0,b:0});
+  dateList(S.from,S.to).forEach(d=>{if(!first||d<first.date)return;const doc=m[d],s=sm(doc);if(!s)return;const wd=new Date(d+'T00:00:00Z').getUTCDay(),g=agg[wd];g.n++;
+    let segs;if(S.store==='all'&&M!=='cust'){const a=sm(doc,'ns'),b=sm(doc,'pf'),pk=x=>x?(M==='orders'?x.orders:x.sales):0;segs=[[pk(a)],[pk(b)]]}else segs=split(s,doc,M);
+    g.a+=segs[0][0];g.b+=segs[1][0]});
+  const allSt=S.store==='all'&&M!=='cust',names=allSt?[['Nerd Salmon',HOT],['ผิงไฟ',SEA]]:M==='cust'?[['ลูกค้าใหม่',HOT],['ลูกค้าเดิม',SOFT]]:[['จากโฆษณา',HOT],['ทั่วไป',SOFT]];
+  const cols=ORDER.map(k=>{const g=agg[k];return {label:NARROW?DS[k]:DN[k],sub:g.n+' วัน',segs:g.n?[[g.a/g.n,names[0][1],names[0][0]],[g.b/g.n,names[1][1],names[1][0]]]:[[0,HOT,''],[0,SOFT,'']],tip:'เฉลี่ยวัน'+DN[k]}});
+  $('week-legend').innerHTML=legendFor(M);
+  $('week-title').textContent='เฉลี่ยต่อวันตามวันในสัปดาห์ · '+(M==='sales'?'ยอดขาย':M==='orders'?'ออเดอร์':'ออเดอร์ ลูกค้าใหม่/เดิม');
+  drawStack($('week-chart'),cols,{money:M==='sales',dec:M!=='sales',sub:true,minCol:90,maxW:70,h:240,aria:'เฉลี่ยตามวันในสัปดาห์'});
+  const ranked=ORDER.filter(k=>agg[k].n).map(k=>[k,(agg[k].a+agg[k].b)/agg[k].n]).sort((x,y)=>y[1]-x[1]);
+  const few=ORDER.some(k=>agg[k].n<2);
+  $('week-insight').textContent=ranked.length?`ขายดีสุด: วัน${DN[ranked[0][0]]} · น้อยสุด: วัน${DN[ranked[ranked.length-1][0]]}`+(few?' · บางวันมีข้อมูลแค่ 1 วัน ยังสรุปเป็น pattern ไม่ได้ ควรดูช่วง 4 สัปดาห์ขึ้นไป':''):'';
+}
+
+function renderHours(){
+  const m=byDate(),H0={};let days=0;
+  dateList(S.from,S.to).forEach(d=>{const s=sm(m[d]);if(!s||!s.hasHours)return;days++;Object.entries(s.hours).forEach(([h,b])=>{const a=H0[h]||(H0[h]={orders:0,sales:0,ad:0,adSales:0});a.orders+=b.orders;a.sales+=b.sales;a.ad+=b.ad;a.adSales+=b.adSales})});
+  if(!days){$('hour-chart').innerHTML=`<div class="empty">ยังไม่มีข้อมูลรายชั่วโมงของ ${STORES[S.store]} ช่วง ${dShort(S.from)} – ${dShort(S.to)}</div>`;$('hour-insight').textContent='';return}
+  const hrs=[];for(let h=10;h<=22;h++)hrs.push(h);Object.keys(H0).map(Number).forEach(h=>{if(!hrs.includes(h))hrs.push(h)});hrs.sort((a,b)=>a-b);
+  const O=S.hm==='orders';
+  const cols=hrs.map(h=>{const b=H0[h]||{orders:0,sales:0,ad:0,adSales:0},tot=O?b.orders:b.sales,ad=S.store==='pf'?0:(O?b.ad:b.adSales);
+    return {label:($('hour-chart').clientWidth<600?String(h):h+':00'),segs:[[ad,HOT,'จากโฆษณา'],[Math.max(0,tot-ad),SOFT,'ทั่วไป']],tip:`${h}:00–${h}:59 · ฿${fmt(b.sales)} · ${b.orders} ออเดอร์ (${b.ad} จากโฆษณา) · เฉลี่ย ฿${fmt(b.sales/days)}/วัน`}});
+  $('hour-legend').innerHTML=S.store==='pf'?'':legendFor(O?'orders':'sales');
+  drawStack($('hour-chart'),cols,{money:!O,h:250,minCol:50,aria:'ยอดขายรายชั่วโมง'});
+  const tot=sum(hrs,h=>(H0[h]||{}).sales||0),win=(a,b)=>sum(hrs.filter(h=>h>=a&&h<=b),h=>(H0[h]||{}).sales||0);
+  const best=[...hrs].sort((a,b)=>((H0[b]||{}).sales||0)-((H0[a]||{}).sales||0))[0];
+  $('hour-insight').textContent=tot?`${STORES[S.store]} · ${dShort(S.from)} – ${dShort(S.to)} (${days} วันที่มีข้อมูล) · ชั่วโมงขายดีสุด ${best}:00 · กลางวัน 11–13 น. ${pct(win(11,13),tot)} · บ่าย 14–16 น. ${pct(win(14,16),tot)} · เย็น 17–20 น. ${pct(win(17,20),tot)} ของยอดขาย`:'';
+}
+
+function phaseStats(ph){
+  const m=byDate(),ds=dateList(ph.from,ph.to).map(d=>m[d]||{date:d}),ad=ds.filter(d=>d.ad_spend!=null),n=ad.length;
+  const sp=sum(ad,x=>x.ad_spend),sa=sum(ad,x=>x.ad_sales),o=sum(ad,x=>x.ad_orders),imp=sum(ad,x=>x.ad_imp),clk=sum(ad,x=>x.ad_clicks);
+  const st=ds.map(d=>sm(d,'ns')).filter(x=>x&&x.sales!=null&&ds.length);
+  return {n,impD:n?imp/n:null,oD:n?o/n:null,roas:sp?sa/sp:null,cpo:o?sp/o:null,cvr:clk?o/clk:null,storeD:st.length?sum(st,x=>x.sales)/st.length:null};
+}
+function renderTest(){
+  const show=S.store!=='pf';$('test-panel').hidden=!show;$('ads-panel').hidden=!show;$('kw-panel').hidden=!show;if(!show)return;
+  const t=S.test;if(!t){$('test').innerHTML='<div class="empty">ยังไม่ได้ตั้งค่าการทดสอบ</div>';return}
+  const today=todayBkk(),stats=t.phases.map(phaseStats);
+  $('test-sub').textContent=`CPO เป้า ฿${t.cpo_target} · 7 วันต่อ 7 วัน · ไม่ขึ้นกับตัวกรองวันที่`;
+  $('test').innerHTML=t.phases.map((ph,i)=>{const s=stats[i],state=today<ph.from?['รอเริ่ม','']:today>ph.to?['จบแล้ว','ok']:['กำลังรัน','stale'];
+    return `<div class="phase"><div class="panel-head"><h2>${esc(ph.label)}</h2><span class="chip ${state[1]}"><span class="dot"></span>${state[0]}</span></div>
+    <div class="sub">${dShort(ph.from)} – ${dShort(ph.to)} · มีข้อมูล ${s.n}/7 วัน</div>
+    <dl><dt>แสดงผล/วัน</dt><dd>${fmt(s.impD)}</dd><dt>ออเดอร์โฆษณา/วัน</dt><dd>${fmt(s.oD,1)}</dd><dt>คลิก → ออเดอร์</dt><dd>${s.cvr==null?'–':fmt(s.cvr*100,1)+'%'}</dd><dt>ROAS</dt><dd>${s.roas==null?'–':fmt(s.roas,1)+'x'}</dd><dt>CPO จริง</dt><dd>${baht(s.cpo)}</dd><dt>ยอดขาย Nerd Salmon/วัน</dt><dd>${baht(s.storeD)}</dd></dl></div>`}).join('');
+  const [a,b]=stats;let v;
+  if(!b||b.n===0)v=`ตอนนี้ยังรัน Manual (${a.n}/7 วัน). เปลี่ยนเป็น Auto ใน GrabAds วันที่ ${dShort(t.phases[1].from)} และอย่าเปลี่ยน CPO, เวลาโฆษณา, เมนู หรือโปรโมชั่นระหว่างทดสอบ`;
+  else if(b.n<7)v=`Auto รันมา ${b.n}/7 วัน: แสดงผล/วัน ${fmt(b.impD)} vs ${fmt(a.impD)}, ออเดอร์/วัน ${fmt(b.oD,1)} vs ${fmt(a.oD,1)}. รอให้ครบ 7 วันก่อนตัดสิน`;
+  else{const lift=a.oD?(b.oD-a.oD)/a.oD:0;v=lift>0.3&&b.roas>=8?`Auto ดีกว่า: ออเดอร์/วัน +${fmt(lift*100,0)}% และ ROAS ${fmt(b.roas,1)}x ยังเกิน 8x → ใช้ Auto ต่อ`:lift<-0.3?`Manual ดีกว่า: ออเดอร์/วันลดลง ${fmt(-lift*100,0)}% → กลับไปใช้ Manual`:`ต่างกันไม่ถึง 30% (${lift>0?'+':''}${fmt(lift*100,0)}%) ยังสรุปไม่ได้ ดูยอดแสดงผลและยอดขายรวมร้านประกอบ`}
+  $('verdict').textContent=v;
+}
+
+function renderAds(){
+  if(S.store==='pf')return;
+  const ds=S.days.filter(d=>d.ad_spend!=null&&d.date>=S.from&&d.date<=S.to).reverse();
+  if(!ds.length){$('ads-tbl').innerHTML='<div class="empty">ไม่มีข้อมูลโฆษณาในช่วงนี้</div>';return}
+  const row=(lab,sp,imp,clk,o,sa,storeO)=>`<td>${baht(sp)}</td><td>${fmt(imp)}</td><td>${fmt(clk)}</td><td>${pct(clk,imp,1)}</td><td>${fmt(o)}</td><td>${pct(o,clk,1)}</td><td>${o?baht(sp/o):'–'}</td><td>${baht(sa)}</td><td>${sp?fmt(sa/sp,1)+'x':'–'}</td><td>${storeO?pct(o,storeO):'–'}</td>`;
+  const body=ds.map(d=>{const s=sm(d,'ns');return `<tr><td>${dShort(d.date)}</td>${row('',d.ad_spend,d.ad_imp,d.ad_clicks,d.ad_orders,d.ad_sales,s?s.orders:0)}</tr>`}).join('');
+  const T=k=>sum(ds,d=>d[k]), so=sum(ds,d=>{const s=sm(d,'ns');return s?s.orders:0});
+  $('ads-tbl').innerHTML=`<table><thead><tr><th>วันที่</th><th>ค่าโฆษณา</th><th>แสดงผล</th><th>คลิก</th><th>CTR</th><th>ออเดอร์</th><th>Conv.<span class="long"> (ออเดอร์/คลิก)</span></th><th>CPO</th><th>ยอดขาย</th><th>ROAS</th><th>% ของออเดอร์ร้าน</th></tr></thead><tbody>${body}</tbody><tfoot><tr><td>รวม</td>${row('',T('ad_spend'),T('ad_imp'),T('ad_clicks'),T('ad_orders'),T('ad_sales'),so)}</tr></tfoot></table>`;
+}
+
+function renderKw(){
+  if(S.store==='pf')return;
+  const agg={};S.kw.filter(d=>d.date>=S.from&&d.date<=S.to).forEach(d=>(d.rows||[]).forEach(r=>{const a=agg[r.kw]||(agg[r.kw]={kw:r.kw,imp:0,clk:0,ord:0,spend:0,sales:0});['imp','clk','ord','spend','sales'].forEach(k=>a[k]+=+r[k]||0)}));
+  const list=Object.values(agg).sort((a,b)=>b.ord-a.ord||b.imp-a.imp);
+  if(!list.length){$('kw-tbl').innerHTML='<div class="empty">ไม่มีข้อมูล keyword ในช่วงนี้</div>';$('kw-sub').textContent='';return}
+  const maxC=Math.max(...list.map(r=>r.clk?r.ord/r.clk:0),0.01);
+  $('kw-sub').textContent=`${dShort(S.from)} – ${dShort(S.to)}`;
+  $('kw-tbl').innerHTML=`<table><thead><tr><th>คำค้นหา</th><th>แสดงผล</th><th>คลิก</th><th>CTR</th><th>ออเดอร์</th><th>Conv.<span class="long"> (ออเดอร์/คลิก)</span></th><th>ยอดขาย</th></tr></thead><tbody>${list.map(r=>{const c=r.clk?r.ord/r.clk:0;return `<tr><td>${esc(r.kw)}</td><td>${fmt(r.imp)}</td><td>${fmt(r.clk)}</td><td>${pct(r.clk,r.imp,1)}</td><td>${fmt(r.ord)}</td><td>${fmt(c*100,1)}%<span class="bar" style="width:${Math.round(c/maxC*48)}px;${r.ord?'':'background:var(--line)'}"></span></td><td>${baht(r.sales)}</td></tr>`}).join('')}</tbody></table>`;
+}
+
+// Menu grouping: same dish listed twice (with/without English, ม่อน/มอน spelling, spacing) → one row
+function menuKey(name){
+  const full=String(name).replace(/^[A-Z]\d+\s+/,'').replace(/แซลม่อน/g,'แซลมอน');let s=full.split(/\s*\/\s*(?=[A-Za-z(])/)[0];
+  if(!/\d\s*g\b/i.test(s)){const sz=full.match(/(\d+)\s*g\b(?![^(]*\+)/i);if(sz&&!/\(\d+g\)/.test(full.split('/')[0]))s+=' '+sz[1]+'g';}
+  s=s.replace(/\(([^)]*)\)/g,(m,inner)=>/[A-Za-z]{2,}/.test(inner)?'':'('+inner.replace(/\s|g/gi,'')+'g)');
+  s=s.replace(/\s+ดอง/g,'ดอง').replace(/\s+/g,' ').trim();
+  // drop repeated identical size groups e.g. "(60+50) (60+50)"
+  s=s.replace(/(\([^)]*\))(\s*\1)+/g,'$1');
+  // "แซลมอน+กุ้งดอง (60+50)" — size without unit → keep as is; strip trailing "g" from bare sizes like 120g
+  return s.replace(/(\d+)g\b/g,'$1g');
+}
+function renderMenu(){
+  const keys=S.store==='all'?['ns','pf']:[S.store], items=[];
+  const rows=S.menuDays.filter(d=>d.date>=S.from&&d.date<=S.to&&keys.includes(d.store));
+  rows.forEach(d=>(d.items||[]).forEach(i=>items.push({...i,store:d.store})));
+  const covered=new Set(rows.map(d=>d.date)).size, n=diffDays(S.from,S.to)+1;
+  $('menu-sub').textContent=`${STORES[S.store]} · ${dShort(S.from)} – ${dShort(S.to)}`+(covered<n?` · มีข้อมูลเมนู ${covered}/${n} วัน`:'');
+  if(!items.length){keys.forEach(k=>{const m=S.menus[k];if(m&&m.items)items.push(...m.items.map(i=>({...i,store:k})))});
+    if(items.length)$('menu-sub').textContent=`${STORES[S.store]} · ยังไม่มีเมนูรายวันในช่วงนี้ แสดงยอด 30 วันล่าสุดแทน`;}
+  if(!items.length){$('menu-tbl').innerHTML=`<div class="empty">ยังไม่มีข้อมูลเมนูของ ${STORES[S.store]} ในช่วงนี้</div>`;return}
+  const g={};items.forEach(i=>{const k=(S.store==='all'?i.store+'|':'')+menuKey(i.name);const a=g[k]||(g[k]={name:menuKey(i.name),store:i.store,qty:0,sales:0,variants:new Set()});a.qty+=i.qty;a.sales+=i.sales;a.variants.add(i.name)});
+  const list=Object.values(g).sort((a,b)=>b.sales-a.sales),max=list[0].sales||1,tq=sum(list,x=>x.qty),ts=sum(list,x=>x.sales);
+  $('menu-tbl').innerHTML=`<table><thead><tr><th>เมนู</th><th>จำนวน</th><th>ยอดขาย</th><th>สัดส่วน</th></tr></thead><tbody>${list.map(i=>{const v=[...i.variants];return `<tr><td class="name">${esc(i.name)}${S.store==='all'?` <small>${STORES[i.store]}</small>`:''}${v.length>1?`<small>รวม ${v.length} ชื่อ: ${v.map(esc).join(' · ')}</small>`:''}</td><td>${fmt(i.qty)}</td><td>${baht(i.sales)}<span class="bar" style="width:${Math.round(i.sales/max*60)}px"></span></td><td>${pct(i.sales,ts)}</td></tr>`}).join('')}</tbody><tfoot><tr><td>รวม</td><td>${fmt(tq)}</td><td>${baht(ts)}</td><td></td></tr></tfoot></table>`;
+}
+
+(async()=>{
+  syncFilters();
+  try{
+    const r=await fetch('data.json?v='+Date.now(),{cache:'no-store'});
+    if(!r.ok)throw new Error(r.status);
+    const D=await r.json();
+    S.days=(D.days||[]).sort((a,b)=>a.date<b.date?-1:1);
+    S.kw=(D.kwday||[]).sort((a,b)=>a.date<b.date?-1:1);
+    S.menuDays=D.menuday||[];
+    S.menus=D.menus||{};
+    S.test=D.test||null; S.status=D.status||null;
+    if(restored&&!restored.preset&&restored.from&&restored.to){S.from=restored.from;S.to=restored.to;S.preset=null;syncFilters()}else setPreset(restored&&restored.preset||7);
+    render();
+  }catch(e){$('st-chip').className='chip err';$('st-text').textContent='โหลดข้อมูลไม่ได้ ลองรีเฟรชหน้า';}
+})();
+</script>
+</body></html>
